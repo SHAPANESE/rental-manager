@@ -74,7 +74,7 @@ export default function BookingCalendar({
   );
 
   return (
-    <div className="h-[calc(100vh-200px)] min-h-[500px]">
+    <div className="h-[calc(100vh-280px)] sm:h-[calc(100vh-200px)] min-h-[400px] sm:min-h-[500px]">
       <Calendar
         localizer={localizer}
         events={events}

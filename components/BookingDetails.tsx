@@ -133,15 +133,15 @@ export default function BookingDetails({
       )}
 
       {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t">
-        <Button variant="secondary" onClick={onClose} className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t">
+        <Button variant="secondary" onClick={onClose} className="flex-1 order-last sm:order-first">
           Cerrar
         </Button>
-        <Button variant="ghost" onClick={onEdit}>
+        <Button variant="ghost" onClick={onEdit} className="flex-1 sm:flex-none">
           Editar
         </Button>
         {booking.status !== 'cancelled' && !showConfirm && (
-          <Button variant="danger" onClick={() => setShowConfirm(true)}>
+          <Button variant="danger" onClick={() => setShowConfirm(true)} className="flex-1 sm:flex-none">
             Cancelar Reserva
           </Button>
         )}

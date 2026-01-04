@@ -124,7 +124,7 @@ export default function BookingForm({
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Check-in
@@ -136,7 +136,7 @@ export default function BookingForm({
               const date = parseISO(e.target.value);
               setCheckIn(date);
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
           />
         </div>
         <div>
@@ -150,7 +150,7 @@ export default function BookingForm({
               const date = parseISO(e.target.value);
               setCheckOut(date);
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
           />
         </div>
       </div>
@@ -198,22 +198,22 @@ export default function BookingForm({
               placeholder="Nombre *"
               value={newGuestName}
               onChange={(e) => setNewGuestName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 type="email"
                 placeholder="Email"
                 value={newGuestEmail}
                 onChange={(e) => setNewGuestEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
               />
               <input
                 type="tel"
                 placeholder="Teléfono"
                 value={newGuestPhone}
                 onChange={(e) => setNewGuestPhone(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
               />
             </div>
             <input
@@ -221,14 +221,14 @@ export default function BookingForm({
               placeholder="Documento (DNI)"
               value={newGuestDocument}
               onChange={(e) => setNewGuestDocument(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
             />
           </div>
         )}
       </div>
 
       {/* Price and Status */}
-      <div className="border-t pt-4 grid grid-cols-2 gap-4">
+      <div className="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Precio total ($)

@@ -126,20 +126,20 @@ export default function HomePage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Calendario de Reservas</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Calendario de Reservas</h1>
+          <p className="text-gray-500 text-sm sm:text-base mt-1">
             Click en una fecha para crear una reserva
           </p>
         </div>
-        <Button onClick={() => setModalState({ type: 'create' })}>
+        <Button onClick={() => setModalState({ type: 'create' })} className="w-full sm:w-auto">
           <Plus size={18} className="mr-2" />
           Nueva Reserva
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-2 sm:p-4">
         <BookingCalendar
           events={events}
           properties={properties}
