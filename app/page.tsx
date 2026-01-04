@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { Plus, Loader2 } from 'lucide-react';
 import BookingCalendar from '@/components/calendar/BookingCalendar';
 import BookingDetails from '@/components/BookingDetails';
 import BookingForm from '@/components/forms/BookingForm';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import { CalendarEvent, Booking, Guest } from '@/lib/types';
-import { addBooking, updateBooking } from '@/lib/data/bookings';
-import { addGuest } from '@/lib/data/guests';
+import { useData } from '@/lib/context/DataContext';
 
 type ModalState =
   | { type: 'none' }
@@ -18,10 +17,39 @@ type ModalState =
   | { type: 'edit'; event: CalendarEvent };
 
 export default function HomePage() {
-  const [modalState, setModalState] = useState<ModalState>({ type: 'none' });
-  const [refreshKey, setRefreshKey] = useState(0);
+  const {
+    properties,
+    guests,
+    bookings,
+    loading,
+    addGuest,
+    addBooking,
+    updateBooking,
+    hasOverlap,
+  } = useData();
 
-  const refresh = () => setRefreshKey((k) => k + 1);
+  const [modalState, setModalState] = useState<ModalState>({ type: 'none' });
+
+  // Construir eventos para el calendario
+  const events: CalendarEvent[] = useMemo(() => {
+    return bookings
+      .filter((b) => b.status !== 'cancelled')
+      .map((booking) => {
+        const guest = guests.find((g) => g.id === booking.guestId);
+        const property = properties.find((p) => p.id === booking.propertyId);
+
+        return {
+          id: booking.id,
+          title: guest?.name ?? 'Huésped',
+          start: new Date(booking.checkIn),
+          end: new Date(booking.checkOut),
+          resourceId: booking.propertyId,
+          booking,
+          guest: guest!,
+          property: property!,
+        };
+      });
+  }, [bookings, guests, properties]);
 
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
     setModalState({ type: 'details', event });
@@ -39,7 +67,7 @@ export default function HomePage() {
 
   const handleCloseModal = () => setModalState({ type: 'none' });
 
-  const handleCreateBooking = (
+  const handleCreateBooking = async (
     bookingData: Omit<Booking, 'id'>,
     guestData: Omit<Guest, 'id'> | string
   ) => {
@@ -48,16 +76,16 @@ export default function HomePage() {
     if (typeof guestData === 'string') {
       guestId = guestData;
     } else {
-      const newGuest = addGuest(guestData);
+      const newGuest = await addGuest(guestData);
+      if (!newGuest) return;
       guestId = newGuest.id;
     }
 
-    addBooking({ ...bookingData, guestId });
+    await addBooking({ ...bookingData, guestId });
     handleCloseModal();
-    refresh();
   };
 
-  const handleEditBooking = (
+  const handleEditBooking = async (
     bookingData: Omit<Booking, 'id'>,
     guestData: Omit<Guest, 'id'> | string
   ) => {
@@ -68,27 +96,33 @@ export default function HomePage() {
     if (typeof guestData === 'string') {
       guestId = guestData;
     } else {
-      const newGuest = addGuest(guestData);
+      const newGuest = await addGuest(guestData);
+      if (!newGuest) return;
       guestId = newGuest.id;
     }
 
-    updateBooking(modalState.event.booking.id, { ...bookingData, guestId });
+    await updateBooking(modalState.event.booking.id, { ...bookingData, guestId });
     handleCloseModal();
-    refresh();
   };
 
-  const handleCancelBooking = () => {
+  const handleCancelBooking = async () => {
     if (modalState.type !== 'details') return;
-
-    updateBooking(modalState.event.booking.id, { status: 'cancelled' });
+    await updateBooking(modalState.event.booking.id, { status: 'cancelled' });
     handleCloseModal();
-    refresh();
   };
 
   const handleEditClick = () => {
     if (modalState.type !== 'details') return;
     setModalState({ type: 'edit', event: modalState.event });
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -107,7 +141,8 @@ export default function HomePage() {
 
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <BookingCalendar
-          key={refreshKey}
+          events={events}
+          properties={properties}
           onSelectEvent={handleSelectEvent}
           onSelectSlot={handleSelectSlot}
         />
@@ -139,6 +174,9 @@ export default function HomePage() {
         {modalState.type === 'create' && (
           <BookingForm
             initialData={modalState.initialData}
+            properties={properties}
+            guests={guests}
+            hasOverlap={hasOverlap}
             onSubmit={handleCreateBooking}
             onCancel={handleCloseModal}
             mode="create"
@@ -156,6 +194,9 @@ export default function HomePage() {
         {modalState.type === 'edit' && (
           <BookingForm
             initialData={modalState.event.booking}
+            properties={properties}
+            guests={guests}
+            hasOverlap={hasOverlap}
             onSubmit={handleEditBooking}
             onCancel={handleCloseModal}
             mode="edit"

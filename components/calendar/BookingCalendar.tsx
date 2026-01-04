@@ -1,15 +1,12 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Calendar, dateFnsLocalizer, Views, NavigateAction, View } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import { CalendarEvent } from '@/lib/types';
-import { properties, getPropertyById } from '@/lib/data/properties';
-import { getBookings } from '@/lib/data/bookings';
-import { getGuestById } from '@/lib/data/guests';
+import { CalendarEvent, Property } from '@/lib/types';
 
 const locales = { es };
 
@@ -22,18 +19,22 @@ const localizer = dateFnsLocalizer({
 });
 
 interface BookingCalendarProps {
+  events: CalendarEvent[];
+  properties: Property[];
   onSelectEvent: (event: CalendarEvent) => void;
   onSelectSlot: (slotInfo: { start: Date; end: Date; resourceId?: string }) => void;
 }
 
 export default function BookingCalendar({
+  events,
+  properties,
   onSelectEvent,
   onSelectSlot,
 }: BookingCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<View>(Views.MONTH);
 
-  const handleNavigate = useCallback((newDate: Date, view: View, action: NavigateAction) => {
+  const handleNavigate = useCallback((newDate: Date) => {
     setCurrentDate(newDate);
   }, []);
 
@@ -41,36 +42,11 @@ export default function BookingCalendar({
     setCurrentView(view);
   }, []);
 
-  const events: CalendarEvent[] = useMemo(() => {
-    const bookings = getBookings();
-    return bookings
-      .filter((b) => b.status !== 'cancelled')
-      .map((booking) => {
-        const guest = getGuestById(booking.guestId);
-        const property = getPropertyById(booking.propertyId);
-
-        return {
-          id: booking.id,
-          title: guest?.name ?? 'Huésped',
-          start: new Date(booking.checkIn),
-          end: new Date(booking.checkOut),
-          resourceId: booking.propertyId,
-          booking,
-          guest: guest!,
-          property: property!,
-        };
-      });
-  }, []);
-
-  const resources = useMemo(
-    () =>
-      properties.map((p) => ({
-        id: p.id,
-        title: p.name,
-        color: p.color,
-      })),
-    []
-  );
+  const resources = properties.map((p) => ({
+    id: p.id,
+    title: p.name,
+    color: p.color,
+  }));
 
   const eventStyleGetter = useCallback((event: CalendarEvent) => {
     const property = event.property;

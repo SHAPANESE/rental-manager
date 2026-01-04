@@ -3,13 +3,13 @@
 import { useState, FormEvent } from 'react';
 import { format, parseISO } from 'date-fns';
 import Button from '@/components/ui/Button';
-import { Booking, Guest, PaymentStatus, BookingStatus } from '@/lib/types';
-import { properties } from '@/lib/data/properties';
-import { getGuests, addGuest } from '@/lib/data/guests';
-import { hasOverlap } from '@/lib/data/bookings';
+import { Booking, Guest, PaymentStatus, BookingStatus, Property } from '@/lib/types';
 
 interface BookingFormProps {
   initialData?: Partial<Booking> & { start?: Date; end?: Date; resourceId?: string };
+  properties: Property[];
+  guests: Guest[];
+  hasOverlap: (propertyId: string, checkIn: Date, checkOut: Date, excludeId?: string) => boolean;
   onSubmit: (booking: Omit<Booking, 'id'>, guest: Omit<Guest, 'id'> | string) => void;
   onCancel: () => void;
   mode: 'create' | 'edit';
@@ -17,14 +17,15 @@ interface BookingFormProps {
 
 export default function BookingForm({
   initialData,
+  properties,
+  guests,
+  hasOverlap,
   onSubmit,
   onCancel,
   mode,
 }: BookingFormProps) {
-  const guests = getGuests();
-
   const [propertyId, setPropertyId] = useState(
-    initialData?.propertyId ?? initialData?.resourceId ?? '1'
+    initialData?.propertyId ?? initialData?.resourceId ?? properties[0]?.id ?? ''
   );
   const [checkIn, setCheckIn] = useState(
     initialData?.checkIn ?? initialData?.start ?? new Date()
@@ -42,7 +43,9 @@ export default function BookingForm({
   const [notes, setNotes] = useState(initialData?.notes ?? '');
 
   // Guest selection or new guest
-  const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing');
+  const [guestMode, setGuestMode] = useState<'existing' | 'new'>(
+    guests.length > 0 ? 'existing' : 'new'
+  );
   const [selectedGuestId, setSelectedGuestId] = useState(
     initialData?.guestId ?? guests[0]?.id ?? ''
   );
@@ -160,6 +163,7 @@ export default function BookingForm({
               type="radio"
               checked={guestMode === 'existing'}
               onChange={() => setGuestMode('existing')}
+              disabled={guests.length === 0}
               className="text-blue-600"
             />
             <span className="text-sm">Huésped existente</span>
@@ -175,7 +179,7 @@ export default function BookingForm({
           </label>
         </div>
 
-        {guestMode === 'existing' ? (
+        {guestMode === 'existing' && guests.length > 0 ? (
           <select
             value={selectedGuestId}
             onChange={(e) => setSelectedGuestId(e.target.value)}
@@ -183,7 +187,7 @@ export default function BookingForm({
           >
             {guests.map((g) => (
               <option key={g.id} value={g.id}>
-                {g.name} - {g.phone}
+                {g.name} {g.phone ? `- ${g.phone}` : ''}
               </option>
             ))}
           </select>

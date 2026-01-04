@@ -1,7 +1,7 @@
 import { Guest } from '../types';
 
 // Datos mock de huéspedes
-let guests: Guest[] = [
+export let guests: Guest[] = [
   {
     id: '1',
     name: 'Juan Pérez',

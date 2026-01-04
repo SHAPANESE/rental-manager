@@ -1,19 +1,28 @@
 'use client';
 
-import { properties } from '@/lib/data/properties';
-import { getBookingsByProperty } from '@/lib/data/bookings';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-import { Home, MapPin } from 'lucide-react';
+import { Home, MapPin, Loader2 } from 'lucide-react';
+import { useData } from '@/lib/context/DataContext';
 
 export default function PropertiesPage() {
+  const { properties, bookings, loading } = useData();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis Propiedades</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {properties.map((property) => {
-          const bookings = getBookingsByProperty(property.id);
-          const activeBookings = bookings.filter(
+          const propertyBookings = bookings.filter((b) => b.propertyId === property.id);
+          const activeBookings = propertyBookings.filter(
             (b) => b.status === 'confirmed' && new Date(b.checkOut) > new Date()
           );
 

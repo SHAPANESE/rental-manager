@@ -2,7 +2,7 @@ import { Booking } from '../types';
 import { addDays } from 'date-fns';
 
 // Datos mock de reservas
-let bookings: Booking[] = [
+export let bookings: Booking[] = [
   {
     id: '1',
     propertyId: '1',

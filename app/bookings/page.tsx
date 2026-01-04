@@ -3,11 +3,9 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { getBookings } from '@/lib/data/bookings';
-import { getGuestById } from '@/lib/data/guests';
-import { getPropertyById } from '@/lib/data/properties';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-import { Calendar, User, CreditCard } from 'lucide-react';
+import Card, { CardContent } from '@/components/ui/Card';
+import { Calendar, User, Loader2 } from 'lucide-react';
+import { useData } from '@/lib/context/DataContext';
 
 const paymentStatusLabels = {
   pending: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-800' },
@@ -22,15 +20,25 @@ const bookingStatusLabels = {
 };
 
 export default function BookingsPage() {
+  const { properties, guests, bookings: rawBookings, loading } = useData();
+
   const bookings = useMemo(() => {
-    return getBookings()
+    return rawBookings
       .sort((a, b) => new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime())
       .map((booking) => ({
         ...booking,
-        guest: getGuestById(booking.guestId),
-        property: getPropertyById(booking.propertyId),
+        guest: guests.find((g) => g.id === booking.guestId),
+        property: properties.find((p) => p.id === booking.propertyId),
       }));
-  }, []);
+  }, [rawBookings, guests, properties]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   const upcomingBookings = bookings.filter(
     (b) => b.status !== 'cancelled' && new Date(b.checkOut) >= new Date()
