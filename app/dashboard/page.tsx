@@ -183,6 +183,9 @@ export default function DashboardPage() {
                         <User size={14} className="text-gray-400 flex-shrink-0" />
                         <span className="font-medium truncate">{getGuestName(booking.guestId)}</span>
                         <span className="text-gray-400 text-xs">• {property?.name}</span>
+                        {booking.arrivalTime && (
+                          <span className="text-green-600 text-xs font-medium">• {booking.arrivalTime}</span>
+                        )}
                       </div>
                     );
                   })}
