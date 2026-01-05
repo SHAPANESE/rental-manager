@@ -141,17 +141,22 @@ export default function BookingCalendar({
           style={{ backgroundColor: selectedProperty.color + '15' }}
         >
           <div
-            className="w-4 h-4 rounded-full"
+            className="w-4 h-4 rounded-full flex-shrink-0"
             style={{ backgroundColor: selectedProperty.color }}
           />
-          <span className="font-medium" style={{ color: selectedProperty.color }}>
+          <span className="font-medium text-sm" style={{ color: selectedProperty.color }}>
             {selectedProperty.name}
           </span>
-          <span className="text-sm text-gray-500">
+          <span className="text-xs text-gray-500">
             - {filteredEvents.length} reserva{filteredEvents.length !== 1 ? 's' : ''}
           </span>
         </div>
       )}
+
+      {/* Hint for adding reservations */}
+      <p className="text-xs text-gray-400 mb-2 text-center sm:text-left">
+        Toca una fecha para crear reserva
+      </p>
 
       <div className="h-[calc(100vh-380px)] sm:h-[calc(100vh-300px)] min-h-[350px] sm:min-h-[450px] booking-calendar">
         <Calendar
@@ -166,6 +171,7 @@ export default function BookingCalendar({
           onView={handleViewChange}
           views={[Views.MONTH, Views.WEEK, Views.DAY]}
           selectable
+          longPressThreshold={50}
           onSelectEvent={onSelectEvent}
           onSelectSlot={handleSelectSlot}
           eventPropGetter={eventStyleGetter}

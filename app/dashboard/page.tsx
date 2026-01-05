@@ -137,45 +137,47 @@ export default function DashboardPage() {
       <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Dashboard</h1>
 
       {/* Main Stats */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 mb-4 sm:mb-6">
+      <div className="grid gap-2 sm:gap-4 grid-cols-2 mb-4 sm:mb-6">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">Ingresos Totales</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs text-gray-500">Total</p>
+                <p className="text-base sm:text-xl font-bold text-gray-900">
+                  ${stats.totalRevenue > 1000 ? `${(stats.totalRevenue / 1000).toFixed(1)}k` : stats.totalRevenue}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">Noches Reservadas</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.totalNightsBooked}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs text-gray-500">Noches</p>
+                <p className="text-base sm:text-xl font-bold text-gray-900">{stats.totalNightsBooked}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Percent className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">Ocupacion Mes</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.currentMonthOccupancy.toFixed(0)}%</p>
-                <p className={`text-xs ${occupancyChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs text-gray-500">Ocupación</p>
+                <p className="text-base sm:text-xl font-bold text-gray-900">{stats.currentMonthOccupancy.toFixed(0)}%</p>
+                <p className={`text-[10px] ${occupancyChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {occupancyChange >= 0 ? '+' : ''}{occupancyChange.toFixed(0)}%
                 </p>
               </div>
@@ -184,15 +186,17 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">Ingresos Mes</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">${stats.currentMonthRevenue.toLocaleString()}</p>
-                <p className={`text-xs ${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs text-gray-500">Este mes</p>
+                <p className="text-base sm:text-xl font-bold text-gray-900">
+                  ${stats.currentMonthRevenue > 1000 ? `${(stats.currentMonthRevenue / 1000).toFixed(1)}k` : stats.currentMonthRevenue}
+                </p>
+                <p className={`text-[10px] ${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {revenueChange >= 0 ? '+' : ''}{revenueChange.toFixed(0)}%
                 </p>
               </div>
