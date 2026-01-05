@@ -160,11 +160,12 @@ export function useGuests() {
   const deleteGuest = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('guests').delete().eq('id', id);
-      if (!error) {
-        setGuests((prev) => prev.filter((g) => g.id !== id));
-        return true;
+      if (error) {
+        console.error('Error deleting guest:', error);
+        return false;
       }
-      return false;
+      setGuests((prev) => prev.filter((g) => g.id !== id));
+      return true;
     } else {
       deleteMockGuest(id);
       setGuests((prev) => prev.filter((g) => g.id !== id));
