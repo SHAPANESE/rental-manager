@@ -158,15 +158,19 @@ export function useGuests() {
   };
 
   const deleteGuest = async (id: string): Promise<boolean> => {
+    console.log('deleteGuest called with id:', id, 'isSupabaseConfigured:', isSupabaseConfigured);
     if (isSupabaseConfigured && supabase) {
+      console.log('Deleting from Supabase...');
       const { error } = await supabase.from('guests').delete().eq('id', id);
       if (error) {
         console.error('Error deleting guest:', error);
         return false;
       }
+      console.log('Delete successful');
       setGuests((prev) => prev.filter((g) => g.id !== id));
       return true;
     } else {
+      console.log('Using mock delete');
       deleteMockGuest(id);
       setGuests((prev) => prev.filter((g) => g.id !== id));
       return true;
