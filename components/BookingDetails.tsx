@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarEvent } from '@/lib/types';
 import Button from '@/components/ui/Button';
-import { Calendar, User, Phone, Mail, FileText, CreditCard, AlertTriangle } from 'lucide-react';
+import { Calendar, User, Phone, Mail, FileText, CreditCard, AlertTriangle, MessageCircle } from 'lucide-react';
 
 interface BookingDetailsProps {
   event: CalendarEvent;
@@ -64,6 +64,15 @@ export default function BookingDetails({
             <Phone className="text-gray-400" size={20} />
             <a href={`tel:${guest.phone}`} className="text-blue-600 hover:underline">
               {guest.phone}
+            </a>
+            <a
+              href={`https://wa.me/${guest.phone.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs rounded-full hover:bg-green-600 transition-colors"
+            >
+              <MessageCircle size={14} />
+              WhatsApp
             </a>
           </div>
         )}
@@ -137,7 +146,7 @@ export default function BookingDetails({
         <Button variant="secondary" onClick={onClose} className="flex-1 order-last sm:order-first">
           Cerrar
         </Button>
-        <Button variant="ghost" onClick={onEdit} className="flex-1 sm:flex-none">
+        <Button variant="primary" onClick={onEdit} className="flex-1 sm:flex-none">
           Editar
         </Button>
         {booking.status !== 'cancelled' && !showConfirm && (

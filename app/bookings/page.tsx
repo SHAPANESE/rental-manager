@@ -1,11 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Card, { CardContent } from '@/components/ui/Card';
+import Modal from '@/components/ui/Modal';
+import BookingDetails from '@/components/BookingDetails';
+import BookingForm from '@/components/forms/BookingForm';
 import { Calendar, User, Loader2 } from 'lucide-react';
 import { useData } from '@/lib/context/DataContext';
+import { Booking, Guest, CalendarEvent } from '@/lib/types';
 
 const paymentStatusLabels = {
   pending: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-800' },
@@ -19,8 +23,14 @@ const bookingStatusLabels = {
   completed: { label: 'Completada', color: 'bg-gray-100 text-gray-800' },
 };
 
+type ModalState =
+  | { type: 'none' }
+  | { type: 'details'; event: CalendarEvent }
+  | { type: 'edit'; event: CalendarEvent };
+
 export default function BookingsPage() {
-  const { properties, guests, bookings: rawBookings, loading } = useData();
+  const { properties, guests, bookings: rawBookings, loading, addGuest, updateBooking, hasOverlap } = useData();
+  const [modalState, setModalState] = useState<ModalState>({ type: 'none' });
 
   const bookings = useMemo(() => {
     return rawBookings
@@ -31,6 +41,53 @@ export default function BookingsPage() {
         property: properties.find((p) => p.id === booking.propertyId),
       }));
   }, [rawBookings, guests, properties]);
+
+  const handleBookingClick = useCallback((booking: typeof bookings[0]) => {
+    const event: CalendarEvent = {
+      id: booking.id,
+      title: booking.guest?.name ?? 'Huésped',
+      start: new Date(booking.checkIn),
+      end: new Date(booking.checkOut),
+      resourceId: booking.propertyId,
+      booking: booking,
+      guest: booking.guest!,
+      property: booking.property!,
+    };
+    setModalState({ type: 'details', event });
+  }, []);
+
+  const handleCloseModal = () => setModalState({ type: 'none' });
+
+  const handleEditClick = () => {
+    if (modalState.type !== 'details') return;
+    setModalState({ type: 'edit', event: modalState.event });
+  };
+
+  const handleEditBooking = async (
+    bookingData: Omit<Booking, 'id'>,
+    guestData: Omit<Guest, 'id'> | string
+  ) => {
+    if (modalState.type !== 'edit') return;
+
+    let guestId: string;
+
+    if (typeof guestData === 'string') {
+      guestId = guestData;
+    } else {
+      const newGuest = await addGuest(guestData);
+      if (!newGuest) return;
+      guestId = newGuest.id;
+    }
+
+    await updateBooking(modalState.event.booking.id, { ...bookingData, guestId });
+    handleCloseModal();
+  };
+
+  const handleCancelBooking = async () => {
+    if (modalState.type !== 'details') return;
+    await updateBooking(modalState.event.booking.id, { status: 'cancelled' });
+    handleCloseModal();
+  };
 
   if (loading) {
     return (
@@ -62,7 +119,11 @@ export default function BookingsPage() {
         ) : (
           <div className="space-y-4">
             {upcomingBookings.map((booking) => (
-              <Card key={booking.id}>
+              <Card
+                key={booking.id}
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleBookingClick(booking)}
+              >
                 <CardContent className="py-4">
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-4">
@@ -126,7 +187,8 @@ export default function BookingsPage() {
             {pastBookings.map((booking) => (
               <div
                 key={booking.id}
-                className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleBookingClick(booking)}
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -156,7 +218,8 @@ export default function BookingsPage() {
             {cancelledBookings.map((booking) => (
               <div
                 key={booking.id}
-                className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg line-through"
+                className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg line-through cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleBookingClick(booking)}
               >
                 <span className="text-gray-500">
                   {booking.property?.name} - {booking.guest?.name}
@@ -166,6 +229,42 @@ export default function BookingsPage() {
           </div>
         </section>
       )}
+
+      {/* Modal de Detalles */}
+      <Modal
+        isOpen={modalState.type === 'details'}
+        onClose={handleCloseModal}
+        title="Detalles de Reserva"
+      >
+        {modalState.type === 'details' && (
+          <BookingDetails
+            event={modalState.event}
+            onEdit={handleEditClick}
+            onCancel={handleCancelBooking}
+            onClose={handleCloseModal}
+          />
+        )}
+      </Modal>
+
+      {/* Modal de Editar */}
+      <Modal
+        isOpen={modalState.type === 'edit'}
+        onClose={handleCloseModal}
+        title="Editar Reserva"
+        size="lg"
+      >
+        {modalState.type === 'edit' && (
+          <BookingForm
+            initialData={modalState.event.booking}
+            properties={properties}
+            guests={guests}
+            hasOverlap={hasOverlap}
+            onSubmit={handleEditBooking}
+            onCancel={handleCloseModal}
+            mode="edit"
+          />
+        )}
+      </Modal>
     </div>
   );
 }

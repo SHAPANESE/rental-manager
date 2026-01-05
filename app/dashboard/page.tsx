@@ -3,12 +3,12 @@
 import { useMemo } from 'react';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
 import { useData } from '@/lib/context/DataContext';
-import { Loader2, TrendingUp, Home, Calendar, DollarSign, Percent } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isWithinInterval, startOfDay, subMonths } from 'date-fns';
+import { Loader2, TrendingUp, Home, Calendar, DollarSign, Percent, LogIn, LogOut, User } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isWithinInterval, startOfDay, subMonths, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function DashboardPage() {
-  const { properties, bookings, loading } = useData();
+  const { properties, bookings, guests, loading } = useData();
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -106,6 +106,15 @@ export default function DashboardPage() {
       };
     });
 
+    // Today's check-ins and check-outs
+    const today = startOfDay(new Date());
+    const todayCheckIns = bookings.filter((b) =>
+      b.status !== 'cancelled' && isSameDay(new Date(b.checkIn), today)
+    );
+    const todayCheckOuts = bookings.filter((b) =>
+      b.status !== 'cancelled' && isSameDay(new Date(b.checkOut), today)
+    );
+
     return {
       totalRevenue,
       totalNightsBooked,
@@ -116,6 +125,8 @@ export default function DashboardPage() {
       propertyStats,
       monthlyRevenue,
       totalBookings: bookings.filter((b) => b.status !== 'cancelled').length,
+      todayCheckIns,
+      todayCheckOuts,
     };
   }, [properties, bookings]);
 
@@ -132,9 +143,85 @@ export default function DashboardPage() {
     ? ((stats.currentMonthRevenue - stats.lastMonthRevenue) / stats.lastMonthRevenue) * 100
     : 0;
 
+  // Helper to get guest name
+  const getGuestName = (guestId: string) => {
+    const guest = guests.find((g) => g.id === guestId);
+    return guest?.name || 'Huésped';
+  };
+
+  // Helper to get property
+  const getProperty = (propertyId: string) => {
+    return properties.find((p) => p.id === propertyId);
+  };
+
   return (
     <div>
       <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Dashboard</h1>
+
+      {/* Today's Check-ins and Check-outs */}
+      {(stats.todayCheckIns.length > 0 || stats.todayCheckOuts.length > 0) && (
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 mb-4 sm:mb-6">
+          {/* Check-ins Today */}
+          <Card className="border-l-4 border-l-green-500">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <LogIn className="w-5 h-5 text-green-600" />
+                <h3 className="font-semibold text-gray-900">Llegan hoy ({stats.todayCheckIns.length})</h3>
+              </div>
+              {stats.todayCheckIns.length === 0 ? (
+                <p className="text-sm text-gray-500">No hay llegadas hoy</p>
+              ) : (
+                <div className="space-y-2">
+                  {stats.todayCheckIns.map((booking) => {
+                    const property = getProperty(booking.propertyId);
+                    return (
+                      <div key={booking.id} className="flex items-center gap-2 text-sm">
+                        <div
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: property?.color }}
+                        />
+                        <User size={14} className="text-gray-400 flex-shrink-0" />
+                        <span className="font-medium truncate">{getGuestName(booking.guestId)}</span>
+                        <span className="text-gray-400 text-xs hidden sm:inline">- {property?.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Check-outs Today */}
+          <Card className="border-l-4 border-l-orange-500">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <LogOut className="w-5 h-5 text-orange-600" />
+                <h3 className="font-semibold text-gray-900">Se van hoy ({stats.todayCheckOuts.length})</h3>
+              </div>
+              {stats.todayCheckOuts.length === 0 ? (
+                <p className="text-sm text-gray-500">No hay salidas hoy</p>
+              ) : (
+                <div className="space-y-2">
+                  {stats.todayCheckOuts.map((booking) => {
+                    const property = getProperty(booking.propertyId);
+                    return (
+                      <div key={booking.id} className="flex items-center gap-2 text-sm">
+                        <div
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: property?.color }}
+                        />
+                        <User size={14} className="text-gray-400 flex-shrink-0" />
+                        <span className="font-medium truncate">{getGuestName(booking.guestId)}</span>
+                        <span className="text-gray-400 text-xs hidden sm:inline">- {property?.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Main Stats */}
       <div className="grid gap-2 sm:gap-4 grid-cols-2 mb-4 sm:mb-6">
