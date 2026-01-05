@@ -2,14 +2,113 @@
 
 import { useState } from 'react';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-import { Home, MapPin, Loader2, ChevronDown, ChevronUp, Calendar, User } from 'lucide-react';
+import { Home, MapPin, Loader2, ChevronDown, ChevronUp, Calendar, User, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useData } from '@/lib/context/DataContext';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isWithinInterval, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Booking } from '@/lib/types';
+
+// Mini calendar component for availability
+function AvailabilityCalendar({
+  propertyBookings,
+  propertyColor
+}: {
+  propertyBookings: Booking[];
+  propertyColor: string;
+}) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  // Get day of week for first day (0 = Sunday)
+  const startDay = monthStart.getDay();
+
+  const isDateBooked = (date: Date) => {
+    return propertyBookings.some((booking) => {
+      if (booking.status === 'cancelled') return false;
+      const checkIn = startOfDay(new Date(booking.checkIn));
+      const checkOut = startOfDay(new Date(booking.checkOut));
+      return isWithinInterval(startOfDay(date), { start: checkIn, end: checkOut });
+    });
+  };
+
+  const weekDays = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between mb-2">
+        <button
+          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+          className="p-1 hover:bg-gray-100 rounded"
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <span className="text-sm font-medium capitalize">
+          {format(currentMonth, 'MMMM yyyy', { locale: es })}
+        </span>
+        <button
+          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+          className="p-1 hover:bg-gray-100 rounded"
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {weekDays.map((day) => (
+          <div key={day} className="text-xs text-gray-500 font-medium py-1">
+            {day}
+          </div>
+        ))}
+
+        {/* Empty cells for days before month starts */}
+        {Array.from({ length: startDay }).map((_, i) => (
+          <div key={`empty-${i}`} className="aspect-square" />
+        ))}
+
+        {days.map((day) => {
+          const booked = isDateBooked(day);
+          const isToday = isSameDay(day, new Date());
+
+          return (
+            <div
+              key={day.toISOString()}
+              className={`aspect-square flex items-center justify-center text-xs rounded-full ${
+                booked
+                  ? 'text-white'
+                  : isToday
+                  ? 'bg-blue-100 text-blue-800 font-bold'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              style={booked ? { backgroundColor: propertyColor } : {}}
+              title={booked ? 'Ocupado' : 'Disponible'}
+            >
+              {format(day, 'd')}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-500">
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: propertyColor }} />
+          <span>Ocupado</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 rounded-full bg-gray-200" />
+          <span>Disponible</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function PropertiesPage() {
   const { properties, bookings, guests, loading } = useData();
   const [expandedProperty, setExpandedProperty] = useState<string | null>(null);
+  const [showAvailability, setShowAvailability] = useState<string | null>(null);
 
   const getGuestName = (guestId: string) => {
     const guest = guests.find((g) => g.id === guestId);
@@ -18,6 +117,10 @@ export default function PropertiesPage() {
 
   const toggleExpand = (propertyId: string) => {
     setExpandedProperty(expandedProperty === propertyId ? null : propertyId);
+  };
+
+  const toggleAvailability = (propertyId: string) => {
+    setShowAvailability(showAvailability === propertyId ? null : propertyId);
   };
 
   if (loading) {
@@ -126,6 +229,31 @@ export default function PropertiesPage() {
                     )}
                   </div>
                 )}
+
+                {/* Availability Calendar */}
+                <div className="mt-4 pt-4 border-t">
+                  <button
+                    onClick={() => toggleAvailability(property.id)}
+                    className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
+                    <span className="flex items-center gap-2">
+                      <CalendarDays size={16} />
+                      Ver disponibilidad
+                    </span>
+                    {showAvailability === property.id ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
+                  </button>
+
+                  {showAvailability === property.id && (
+                    <AvailabilityCalendar
+                      propertyBookings={propertyBookings}
+                      propertyColor={property.color}
+                    />
+                  )}
+                </div>
               </CardContent>
             </Card>
           );
