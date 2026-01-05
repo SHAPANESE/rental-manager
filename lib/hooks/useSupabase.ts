@@ -7,6 +7,20 @@ import { properties as mockProperties } from '../data/properties';
 import { bookings as mockBookingsData, addBooking as addMockBooking, updateBooking as updateMockBooking } from '../data/bookings';
 import { guests as mockGuestsData, addGuest as addMockGuest } from '../data/guests';
 
+// Parse date string as local timezone (not UTC) to avoid day shift
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+// Format date as local timezone string (not UTC) to avoid day shift
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Convertir de DB a tipos de la app
 function dbToProperty(db: DbProperty): Property {
   return {
@@ -35,8 +49,8 @@ function dbToBooking(db: DbBooking): Booking {
     id: db.id,
     propertyId: db.property_id,
     guestId: db.guest_id,
-    checkIn: new Date(db.check_in),
-    checkOut: new Date(db.check_out),
+    checkIn: parseLocalDate(db.check_in),
+    checkOut: parseLocalDate(db.check_out),
     totalPrice: db.total_price,
     paymentStatus: db.payment_status,
     status: db.status,
@@ -139,8 +153,8 @@ export function useBookings() {
         .insert({
           property_id: booking.propertyId,
           guest_id: booking.guestId,
-          check_in: booking.checkIn.toISOString().split('T')[0],
-          check_out: booking.checkOut.toISOString().split('T')[0],
+          check_in: formatLocalDate(booking.checkIn),
+          check_out: formatLocalDate(booking.checkOut),
           total_price: booking.totalPrice,
           payment_status: booking.paymentStatus,
           status: booking.status,
@@ -168,8 +182,8 @@ export function useBookings() {
       const dbUpdates: Record<string, unknown> = {};
       if (updates.propertyId) dbUpdates.property_id = updates.propertyId;
       if (updates.guestId) dbUpdates.guest_id = updates.guestId;
-      if (updates.checkIn) dbUpdates.check_in = updates.checkIn.toISOString().split('T')[0];
-      if (updates.checkOut) dbUpdates.check_out = updates.checkOut.toISOString().split('T')[0];
+      if (updates.checkIn) dbUpdates.check_in = formatLocalDate(updates.checkIn);
+      if (updates.checkOut) dbUpdates.check_out = formatLocalDate(updates.checkOut);
       if (updates.totalPrice !== undefined) dbUpdates.total_price = updates.totalPrice;
       if (updates.paymentStatus) dbUpdates.payment_status = updates.paymentStatus;
       if (updates.status) dbUpdates.status = updates.status;

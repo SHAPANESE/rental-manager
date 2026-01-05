@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+
+// Parse date string as local timezone (not UTC) to avoid day shift
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
 import Button from '@/components/ui/Button';
 import { Booking, Guest, PaymentStatus, BookingStatus, Property } from '@/lib/types';
 
@@ -133,7 +139,7 @@ export default function BookingForm({
             type="date"
             value={format(checkIn, 'yyyy-MM-dd')}
             onChange={(e) => {
-              const date = parseISO(e.target.value);
+              const date = parseLocalDate(e.target.value);
               setCheckIn(date);
             }}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
@@ -147,7 +153,7 @@ export default function BookingForm({
             type="date"
             value={format(checkOut, 'yyyy-MM-dd')}
             onChange={(e) => {
-              const date = parseISO(e.target.value);
+              const date = parseLocalDate(e.target.value);
               setCheckOut(date);
             }}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
