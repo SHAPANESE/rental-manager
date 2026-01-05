@@ -182,7 +182,7 @@ export default function DashboardPage() {
                         />
                         <User size={14} className="text-gray-400 flex-shrink-0" />
                         <span className="font-medium truncate">{getGuestName(booking.guestId)}</span>
-                        <span className="text-gray-400 text-xs hidden sm:inline">- {property?.name}</span>
+                        <span className="text-gray-400 text-xs">• {property?.name}</span>
                       </div>
                     );
                   })}
@@ -212,7 +212,7 @@ export default function DashboardPage() {
                         />
                         <User size={14} className="text-gray-400 flex-shrink-0" />
                         <span className="font-medium truncate">{getGuestName(booking.guestId)}</span>
-                        <span className="text-gray-400 text-xs hidden sm:inline">- {property?.name}</span>
+                        <span className="text-gray-400 text-xs">• {property?.name}</span>
                       </div>
                     );
                   })}

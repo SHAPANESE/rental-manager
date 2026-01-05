@@ -5,11 +5,12 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarEvent } from '@/lib/types';
 import Button from '@/components/ui/Button';
-import { Calendar, User, Phone, Mail, FileText, CreditCard, AlertTriangle, MessageCircle } from 'lucide-react';
+import { Calendar, User, Phone, Mail, FileText, CreditCard, AlertTriangle, MessageCircle, Pencil } from 'lucide-react';
 
 interface BookingDetailsProps {
   event: CalendarEvent;
   onEdit: () => void;
+  onEditGuest?: () => void;
   onCancel: () => void;
   onClose: () => void;
 }
@@ -23,6 +24,7 @@ const paymentStatusLabels = {
 export default function BookingDetails({
   event,
   onEdit,
+  onEditGuest,
   onCancel,
   onClose,
 }: BookingDetailsProps) {
@@ -55,9 +57,20 @@ export default function BookingDetails({
 
       {/* Guest Info */}
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-        <div className="flex items-center gap-3">
-          <User className="text-gray-400" size={20} />
-          <span className="font-medium text-gray-900">{guest?.name ?? 'Huésped'}</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <User className="text-gray-400" size={20} />
+            <span className="font-medium text-gray-900">{guest?.name ?? 'Huésped'}</span>
+          </div>
+          {onEditGuest && guest && (
+            <button
+              onClick={onEditGuest}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            >
+              <Pencil size={12} />
+              Editar
+            </button>
+          )}
         </div>
         {guest?.phone && (
           <div className="flex items-center gap-3">

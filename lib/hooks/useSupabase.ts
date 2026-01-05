@@ -125,7 +125,37 @@ export function useGuests() {
     }
   };
 
-  return { guests, loading, addGuest, refetch: fetchGuests };
+  const updateGuest = async (id: string, updates: Partial<Guest>): Promise<boolean> => {
+    if (isSupabaseConfigured && supabase) {
+      const dbUpdates: Record<string, unknown> = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.email !== undefined) dbUpdates.email = updates.email;
+      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+      if (updates.documentId !== undefined) dbUpdates.document_id = updates.documentId;
+      if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+
+      const { error } = await supabase
+        .from('guests')
+        .update(dbUpdates)
+        .eq('id', id);
+
+      if (!error) {
+        setGuests((prev) =>
+          prev.map((g) => (g.id === id ? { ...g, ...updates } : g))
+        );
+        return true;
+      }
+      return false;
+    } else {
+      // Mock: update guest locally
+      setGuests((prev) =>
+        prev.map((g) => (g.id === id ? { ...g, ...updates } : g))
+      );
+      return true;
+    }
+  };
+
+  return { guests, loading, addGuest, updateGuest, refetch: fetchGuests };
 }
 
 export function useBookings() {

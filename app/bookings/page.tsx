@@ -7,6 +7,7 @@ import Card, { CardContent } from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import BookingDetails from '@/components/BookingDetails';
 import BookingForm from '@/components/forms/BookingForm';
+import GuestForm from '@/components/forms/GuestForm';
 import { Calendar, User, Loader2 } from 'lucide-react';
 import { useData } from '@/lib/context/DataContext';
 import { Booking, Guest, CalendarEvent } from '@/lib/types';
@@ -26,10 +27,11 @@ const bookingStatusLabels = {
 type ModalState =
   | { type: 'none' }
   | { type: 'details'; event: CalendarEvent }
-  | { type: 'edit'; event: CalendarEvent };
+  | { type: 'edit'; event: CalendarEvent }
+  | { type: 'editGuest'; event: CalendarEvent };
 
 export default function BookingsPage() {
-  const { properties, guests, bookings: rawBookings, loading, addGuest, updateBooking, hasOverlap } = useData();
+  const { properties, guests, bookings: rawBookings, loading, addGuest, updateGuest, updateBooking, hasOverlap } = useData();
   const [modalState, setModalState] = useState<ModalState>({ type: 'none' });
 
   const bookings = useMemo(() => {
@@ -86,6 +88,17 @@ export default function BookingsPage() {
   const handleCancelBooking = async () => {
     if (modalState.type !== 'details') return;
     await updateBooking(modalState.event.booking.id, { status: 'cancelled' });
+    handleCloseModal();
+  };
+
+  const handleEditGuestClick = () => {
+    if (modalState.type !== 'details') return;
+    setModalState({ type: 'editGuest', event: modalState.event });
+  };
+
+  const handleUpdateGuest = async (updates: Partial<Guest>) => {
+    if (modalState.type !== 'editGuest') return;
+    await updateGuest(modalState.event.guest.id, updates);
     handleCloseModal();
   };
 
@@ -240,6 +253,7 @@ export default function BookingsPage() {
           <BookingDetails
             event={modalState.event}
             onEdit={handleEditClick}
+            onEditGuest={handleEditGuestClick}
             onCancel={handleCancelBooking}
             onClose={handleCloseModal}
           />
@@ -262,6 +276,21 @@ export default function BookingsPage() {
             onSubmit={handleEditBooking}
             onCancel={handleCloseModal}
             mode="edit"
+          />
+        )}
+      </Modal>
+
+      {/* Modal de Editar Huésped */}
+      <Modal
+        isOpen={modalState.type === 'editGuest'}
+        onClose={handleCloseModal}
+        title="Editar Huésped"
+      >
+        {modalState.type === 'editGuest' && modalState.event.guest && (
+          <GuestForm
+            guest={modalState.event.guest}
+            onSubmit={handleUpdateGuest}
+            onCancel={handleCloseModal}
           />
         )}
       </Modal>
