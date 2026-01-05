@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured, DbProperty, DbGuest, DbBooking } from '
 import { Property, Guest, Booking } from '../types';
 import { properties as mockProperties } from '../data/properties';
 import { bookings as mockBookingsData, addBooking as addMockBooking, updateBooking as updateMockBooking } from '../data/bookings';
-import { guests as mockGuestsData, addGuest as addMockGuest } from '../data/guests';
+import { guests as mockGuestsData, addGuest as addMockGuest, deleteGuest as deleteMockGuest } from '../data/guests';
 
 // Parse date string as local timezone (not UTC) to avoid day shift
 function parseLocalDate(dateString: string): Date {
@@ -166,6 +166,7 @@ export function useGuests() {
       }
       return false;
     } else {
+      deleteMockGuest(id);
       setGuests((prev) => prev.filter((g) => g.id !== id));
       return true;
     }

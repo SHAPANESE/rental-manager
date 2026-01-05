@@ -49,3 +49,9 @@ export function updateGuest(id: string, data: Partial<Guest>): Guest | undefined
   guests[index] = { ...guests[index], ...data };
   return guests[index];
 }
+
+export function deleteGuest(id: string): boolean {
+  const initialLength = guests.length;
+  guests = guests.filter((g) => g.id !== id);
+  return guests.length < initialLength;
+}
