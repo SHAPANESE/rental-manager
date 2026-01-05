@@ -146,9 +146,7 @@ export default function DashboardPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] sm:text-xs text-gray-500">Total</p>
-                <p className="text-base sm:text-xl font-bold text-gray-900">
-                  ${stats.totalRevenue > 1000 ? `${(stats.totalRevenue / 1000).toFixed(1)}k` : stats.totalRevenue}
-                </p>
+                <p className="text-sm sm:text-xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -193,9 +191,7 @@ export default function DashboardPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] sm:text-xs text-gray-500">Este mes</p>
-                <p className="text-base sm:text-xl font-bold text-gray-900">
-                  ${stats.currentMonthRevenue > 1000 ? `${(stats.currentMonthRevenue / 1000).toFixed(1)}k` : stats.currentMonthRevenue}
-                </p>
+                <p className="text-sm sm:text-xl font-bold text-gray-900">${stats.currentMonthRevenue.toLocaleString()}</p>
                 <p className={`text-[10px] ${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {revenueChange >= 0 ? '+' : ''}{revenueChange.toFixed(0)}%
                 </p>
@@ -255,9 +251,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <p className="text-sm sm:text-base font-bold text-gray-900">
-                      ${property.revenue > 1000 ? `${(property.revenue / 1000).toFixed(1)}k` : property.revenue}
-                    </p>
+                    <p className="text-xs sm:text-base font-bold text-gray-900">${property.revenue.toLocaleString()}</p>
                     <p className="text-[10px] sm:text-xs text-gray-500">Ingresos</p>
                   </div>
                   <div>
