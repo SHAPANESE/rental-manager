@@ -1,11 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-import { Home, MapPin, Loader2 } from 'lucide-react';
+import { Home, MapPin, Loader2, ChevronDown, ChevronUp, Calendar, User } from 'lucide-react';
 import { useData } from '@/lib/context/DataContext';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export default function PropertiesPage() {
-  const { properties, bookings, loading } = useData();
+  const { properties, bookings, guests, loading } = useData();
+  const [expandedProperty, setExpandedProperty] = useState<string | null>(null);
+
+  const getGuestName = (guestId: string) => {
+    const guest = guests.find((g) => g.id === guestId);
+    return guest?.name || 'Huésped desconocido';
+  };
+
+  const toggleExpand = (propertyId: string) => {
+    setExpandedProperty(expandedProperty === propertyId ? null : propertyId);
+  };
 
   if (loading) {
     return (
@@ -65,6 +78,54 @@ export default function PropertiesPage() {
                     {activeBookings.length > 0 ? 'Ocupada' : 'Disponible'}
                   </div>
                 </div>
+
+                {/* Bookings List */}
+                {propertyBookings.length > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <button
+                      onClick={() => toggleExpand(property.id)}
+                      className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
+                    >
+                      <span>Ver reservas ({propertyBookings.length})</span>
+                      {expandedProperty === property.id ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
+                    </button>
+
+                    {expandedProperty === property.id && (
+                      <div className="mt-3 space-y-2 max-h-64 overflow-y-auto">
+                        {propertyBookings
+                          .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
+                          .map((booking) => (
+                            <div
+                              key={booking.id}
+                              className={`p-3 rounded-lg text-sm ${
+                                booking.status === 'cancelled'
+                                  ? 'bg-gray-100 text-gray-500'
+                                  : booking.status === 'completed'
+                                  ? 'bg-green-50 text-green-800'
+                                  : 'bg-blue-50 text-blue-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 font-medium">
+                                <User size={14} />
+                                {getGuestName(booking.guestId)}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1 text-xs opacity-80">
+                                <Calendar size={12} />
+                                {format(booking.checkIn, 'dd MMM', { locale: es })} - {format(booking.checkOut, 'dd MMM yyyy', { locale: es })}
+                              </div>
+                              {booking.status === 'cancelled' && (
+                                <span className="text-xs text-red-500 mt-1 block">Cancelada</span>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
