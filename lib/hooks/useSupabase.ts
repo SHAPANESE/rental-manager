@@ -157,7 +157,21 @@ export function useGuests() {
     }
   };
 
-  return { guests, loading, addGuest, updateGuest, refetch: fetchGuests };
+  const deleteGuest = async (id: string): Promise<boolean> => {
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.from('guests').delete().eq('id', id);
+      if (!error) {
+        setGuests((prev) => prev.filter((g) => g.id !== id));
+        return true;
+      }
+      return false;
+    } else {
+      setGuests((prev) => prev.filter((g) => g.id !== id));
+      return true;
+    }
+  };
+
+  return { guests, loading, addGuest, updateGuest, deleteGuest, refetch: fetchGuests };
 }
 
 export function useBookings() {

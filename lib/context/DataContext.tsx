@@ -11,6 +11,7 @@ interface DataContextType {
   loading: boolean;
   addGuest: (guest: Omit<Guest, 'id'>) => Promise<Guest | null>;
   updateGuest: (id: string, updates: Partial<Guest>) => Promise<boolean>;
+  deleteGuest: (id: string) => Promise<boolean>;
   addBooking: (booking: Omit<Booking, 'id'>) => Promise<Booking | null>;
   updateBooking: (id: string, updates: Partial<Booking>) => Promise<boolean>;
   deleteBooking: (id: string) => Promise<boolean>;
@@ -23,7 +24,7 @@ const DataContext = createContext<DataContextType | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const { properties, loading: loadingProps } = useProperties();
-  const { guests, loading: loadingGuests, addGuest, updateGuest, refetch: refetchGuests } = useGuests();
+  const { guests, loading: loadingGuests, addGuest, updateGuest, deleteGuest, refetch: refetchGuests } = useGuests();
   const {
     bookings,
     loading: loadingBookings,
@@ -45,6 +46,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         loading,
         addGuest,
         updateGuest,
+        deleteGuest,
         addBooking,
         updateBooking,
         deleteBooking,

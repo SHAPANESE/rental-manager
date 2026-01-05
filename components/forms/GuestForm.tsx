@@ -6,18 +6,19 @@ import Button from '@/components/ui/Button';
 import { User, Phone, Mail, FileText, MessageSquare } from 'lucide-react';
 
 interface GuestFormProps {
-  guest: Guest;
-  onSubmit: (updates: Partial<Guest>) => Promise<void>;
+  guest?: Guest;
+  onSubmit: (data: Omit<Guest, 'id'>) => Promise<void>;
   onCancel: () => void;
+  mode?: 'create' | 'edit';
 }
 
-export default function GuestForm({ guest, onSubmit, onCancel }: GuestFormProps) {
+export default function GuestForm({ guest, onSubmit, onCancel, mode = 'edit' }: GuestFormProps) {
   const [formData, setFormData] = useState({
-    name: guest.name,
-    email: guest.email,
-    phone: guest.phone,
-    documentId: guest.documentId,
-    notes: guest.notes || '',
+    name: guest?.name || '',
+    email: guest?.email || '',
+    phone: guest?.phone || '',
+    documentId: guest?.documentId || '',
+    notes: guest?.notes || '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -108,7 +109,7 @@ export default function GuestForm({ guest, onSubmit, onCancel }: GuestFormProps)
           Cancelar
         </Button>
         <Button type="submit" disabled={saving} className="flex-1">
-          {saving ? 'Guardando...' : 'Guardar'}
+          {saving ? 'Guardando...' : mode === 'create' ? 'Crear Huésped' : 'Guardar'}
         </Button>
       </div>
     </form>
