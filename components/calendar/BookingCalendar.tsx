@@ -158,7 +158,7 @@ export default function BookingCalendar({
         Toca una fecha para crear reserva
       </p>
 
-      <div className="h-[calc(100vh-380px)] sm:h-[calc(100vh-300px)] min-h-[350px] sm:min-h-[450px] booking-calendar">
+      <div className="h-[500px] sm:h-[600px] min-h-[500px] booking-calendar">
         <Calendar
           localizer={localizer}
           events={filteredEvents}
@@ -244,12 +244,12 @@ export default function BookingCalendar({
 
         /* Month view - better cell height for mobile */
         .booking-calendar .rbc-month-row {
-          min-height: 70px;
+          min-height: 80px;
         }
 
         @media (min-width: 640px) {
           .booking-calendar .rbc-month-row {
-            min-height: 90px;
+            min-height: 100px;
           }
         }
 
