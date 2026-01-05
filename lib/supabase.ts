@@ -36,7 +36,9 @@ export interface DbBooking {
   guest_id: string;
   check_in: string;
   check_out: string;
+  arrival_time?: string;
   total_price: number;
+  paid_amount?: number;
   payment_status: 'pending' | 'partial' | 'paid';
   status: 'confirmed' | 'cancelled' | 'completed';
   notes: string;

@@ -31,7 +31,9 @@ export interface Booking {
   guestId: string;
   checkIn: Date;
   checkOut: Date;
+  arrivalTime?: string;
   totalPrice: number;
+  paidAmount: number;
   paymentStatus: PaymentStatus;
   status: BookingStatus;
   notes?: string;

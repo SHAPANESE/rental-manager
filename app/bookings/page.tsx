@@ -8,6 +8,7 @@ import Modal from '@/components/ui/Modal';
 import BookingDetails from '@/components/BookingDetails';
 import BookingForm from '@/components/forms/BookingForm';
 import GuestForm from '@/components/forms/GuestForm';
+import PaymentForm from '@/components/forms/PaymentForm';
 import { Calendar, User, Loader2 } from 'lucide-react';
 import { useData } from '@/lib/context/DataContext';
 import { Booking, Guest, CalendarEvent } from '@/lib/types';
@@ -28,10 +29,11 @@ type ModalState =
   | { type: 'none' }
   | { type: 'details'; event: CalendarEvent }
   | { type: 'edit'; event: CalendarEvent }
-  | { type: 'editGuest'; event: CalendarEvent };
+  | { type: 'editGuest'; event: CalendarEvent }
+  | { type: 'recordPayment'; event: CalendarEvent };
 
 export default function BookingsPage() {
-  const { properties, guests, bookings: rawBookings, loading, addGuest, updateGuest, updateBooking, hasOverlap } = useData();
+  const { properties, guests, bookings: rawBookings, loading, addGuest, updateGuest, updateBooking, deleteBooking, hasOverlap } = useData();
   const [modalState, setModalState] = useState<ModalState>({ type: 'none' });
 
   const bookings = useMemo(() => {
@@ -99,6 +101,26 @@ export default function BookingsPage() {
   const handleUpdateGuest = async (updates: Partial<Guest>) => {
     if (modalState.type !== 'editGuest') return;
     await updateGuest(modalState.event.guest.id, updates);
+    handleCloseModal();
+  };
+
+  const handleRecordPaymentClick = () => {
+    if (modalState.type !== 'details') return;
+    setModalState({ type: 'recordPayment', event: modalState.event });
+  };
+
+  const handleRecordPayment = async (amount: number) => {
+    if (modalState.type !== 'recordPayment') return;
+    const booking = modalState.event.booking;
+    const newPaidAmount = (booking.paidAmount || 0) + amount;
+    const newStatus = newPaidAmount >= booking.totalPrice ? 'paid' : newPaidAmount > 0 ? 'partial' : 'pending';
+    await updateBooking(booking.id, { paidAmount: newPaidAmount, paymentStatus: newStatus });
+    handleCloseModal();
+  };
+
+  const handleDeleteBooking = async () => {
+    if (modalState.type !== 'details') return;
+    await deleteBooking(modalState.event.booking.id);
     handleCloseModal();
   };
 
@@ -254,7 +276,9 @@ export default function BookingsPage() {
             event={modalState.event}
             onEdit={handleEditClick}
             onEditGuest={handleEditGuestClick}
+            onRecordPayment={handleRecordPaymentClick}
             onCancel={handleCancelBooking}
+            onDelete={handleDeleteBooking}
             onClose={handleCloseModal}
           />
         )}
@@ -290,6 +314,22 @@ export default function BookingsPage() {
           <GuestForm
             guest={modalState.event.guest}
             onSubmit={handleUpdateGuest}
+            onCancel={handleCloseModal}
+          />
+        )}
+      </Modal>
+
+      {/* Modal de Registrar Pago */}
+      <Modal
+        isOpen={modalState.type === 'recordPayment'}
+        onClose={handleCloseModal}
+        title="Registrar Pago"
+      >
+        {modalState.type === 'recordPayment' && (
+          <PaymentForm
+            totalPrice={modalState.event.booking.totalPrice}
+            paidAmount={modalState.event.booking.paidAmount || 0}
+            onSubmit={handleRecordPayment}
             onCancel={handleCloseModal}
           />
         )}

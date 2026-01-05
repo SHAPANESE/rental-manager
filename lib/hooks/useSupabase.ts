@@ -51,7 +51,9 @@ function dbToBooking(db: DbBooking): Booking {
     guestId: db.guest_id,
     checkIn: parseLocalDate(db.check_in),
     checkOut: parseLocalDate(db.check_out),
+    arrivalTime: db.arrival_time,
     totalPrice: db.total_price,
+    paidAmount: db.paid_amount ?? 0,
     paymentStatus: db.payment_status,
     status: db.status,
     notes: db.notes,
@@ -185,7 +187,9 @@ export function useBookings() {
           guest_id: booking.guestId,
           check_in: formatLocalDate(booking.checkIn),
           check_out: formatLocalDate(booking.checkOut),
+          arrival_time: booking.arrivalTime || null,
           total_price: booking.totalPrice,
+          paid_amount: booking.paidAmount || 0,
           payment_status: booking.paymentStatus,
           status: booking.status,
           notes: booking.notes || '',
@@ -214,7 +218,9 @@ export function useBookings() {
       if (updates.guestId) dbUpdates.guest_id = updates.guestId;
       if (updates.checkIn) dbUpdates.check_in = formatLocalDate(updates.checkIn);
       if (updates.checkOut) dbUpdates.check_out = formatLocalDate(updates.checkOut);
+      if (updates.arrivalTime !== undefined) dbUpdates.arrival_time = updates.arrivalTime;
       if (updates.totalPrice !== undefined) dbUpdates.total_price = updates.totalPrice;
+      if (updates.paidAmount !== undefined) dbUpdates.paid_amount = updates.paidAmount;
       if (updates.paymentStatus) dbUpdates.payment_status = updates.paymentStatus;
       if (updates.status) dbUpdates.status = updates.status;
       if (updates.notes !== undefined) dbUpdates.notes = updates.notes;

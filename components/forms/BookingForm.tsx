@@ -39,7 +39,9 @@ export default function BookingForm({
   const [checkOut, setCheckOut] = useState(
     initialData?.checkOut ?? initialData?.end ?? new Date()
   );
+  const [arrivalTime, setArrivalTime] = useState(initialData?.arrivalTime ?? '');
   const [totalPrice, setTotalPrice] = useState(initialData?.totalPrice ?? 0);
+  const [paidAmount, setPaidAmount] = useState(initialData?.paidAmount ?? 0);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
     initialData?.paymentStatus ?? 'pending'
   );
@@ -77,13 +79,23 @@ export default function BookingForm({
       return;
     }
 
+    // Calculate payment status based on paid amount
+    let calculatedPaymentStatus: PaymentStatus = 'pending';
+    if (paidAmount >= totalPrice && totalPrice > 0) {
+      calculatedPaymentStatus = 'paid';
+    } else if (paidAmount > 0) {
+      calculatedPaymentStatus = 'partial';
+    }
+
     const bookingData: Omit<Booking, 'id'> = {
       propertyId,
       guestId: guestMode === 'existing' ? selectedGuestId : '',
       checkIn,
       checkOut,
+      arrivalTime: arrivalTime || undefined,
       totalPrice,
-      paymentStatus,
+      paidAmount,
+      paymentStatus: calculatedPaymentStatus,
       status,
       notes,
     };
@@ -130,7 +142,7 @@ export default function BookingForm({
         </select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Check-in
@@ -143,6 +155,18 @@ export default function BookingForm({
               setCheckIn(date);
             }}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Hora llegada
+          </label>
+          <input
+            type="time"
+            value={arrivalTime}
+            onChange={(e) => setArrivalTime(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+            placeholder="Ej: 14:00"
           />
         </div>
         <div>
@@ -233,7 +257,7 @@ export default function BookingForm({
         )}
       </div>
 
-      {/* Price and Status */}
+      {/* Price and Payment */}
       <div className="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -248,17 +272,26 @@ export default function BookingForm({
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Estado de pago
+            Monto pagado ($)
           </label>
-          <select
-            value={paymentStatus}
-            onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus)}
+          <input
+            type="number"
+            value={paidAmount}
+            onChange={(e) => setPaidAmount(Number(e.target.value))}
+            max={totalPrice}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="pending">Pendiente</option>
-            <option value="partial">Parcial</option>
-            <option value="paid">Pagado</option>
-          </select>
+          />
+          {totalPrice > 0 && (
+            <p className="text-xs mt-1 text-gray-500">
+              {paidAmount >= totalPrice ? (
+                <span className="text-green-600">Pagado completo</span>
+              ) : paidAmount > 0 ? (
+                <span className="text-orange-600">Pendiente: ${(totalPrice - paidAmount).toLocaleString()}</span>
+              ) : (
+                <span className="text-yellow-600">Sin pagos</span>
+              )}
+            </p>
+          )}
         </div>
       </div>
 
