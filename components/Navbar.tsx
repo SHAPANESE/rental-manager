@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Calendar, Home, List } from 'lucide-react';
+import { Calendar, Home, List, LayoutDashboard } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Calendario', icon: Calendar },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/properties', label: 'Propiedades', icon: Home },
   { href: '/bookings', label: 'Reservas', icon: List },
 ];
