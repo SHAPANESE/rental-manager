@@ -134,67 +134,67 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Dashboard</h1>
 
       {/* Main Stats */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 mb-4 sm:mb-6">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Ingresos Totales</p>
-                <p className="text-2xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Ingresos Totales</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Noches Reservadas</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalNightsBooked}</p>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-blue-600" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Noches Reservadas</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.totalNightsBooked}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Ocupacion Este Mes</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.currentMonthOccupancy.toFixed(1)}%</p>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Percent className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Ocupacion Mes</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.currentMonthOccupancy.toFixed(0)}%</p>
                 <p className={`text-xs ${occupancyChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {occupancyChange >= 0 ? '+' : ''}{occupancyChange.toFixed(1)}% vs mes anterior
+                  {occupancyChange >= 0 ? '+' : ''}{occupancyChange.toFixed(0)}%
                 </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Percent className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Ingresos Este Mes</p>
-                <p className="text-2xl font-bold text-gray-900">${stats.currentMonthRevenue.toLocaleString()}</p>
-                <p className={`text-xs ${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {revenueChange >= 0 ? '+' : ''}{revenueChange.toFixed(1)}% vs mes anterior
-                </p>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-yellow-600" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Ingresos Mes</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">${stats.currentMonthRevenue.toLocaleString()}</p>
+                <p className={`text-xs ${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {revenueChange >= 0 ? '+' : ''}{revenueChange.toFixed(0)}%
+                </p>
               </div>
             </div>
           </CardContent>
@@ -202,25 +202,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Revenue Chart */}
-      <Card className="mb-6">
+      <Card className="mb-4 sm:mb-6">
         <CardHeader>
-          <h2 className="text-lg font-semibold text-gray-900">Ingresos Mensuales</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Ingresos Mensuales</h2>
         </CardHeader>
         <CardContent>
-          <div className="flex items-end justify-between gap-2 h-48">
+          <div className="flex items-end justify-between gap-1 sm:gap-2 h-32 sm:h-48">
             {stats.monthlyRevenue.map((month, i) => {
               const maxRevenue = Math.max(...stats.monthlyRevenue.map(m => m.revenue), 1);
               const height = (month.revenue / maxRevenue) * 100;
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-xs text-gray-600 font-medium">
-                    ${month.revenue > 1000 ? `${(month.revenue / 1000).toFixed(1)}k` : month.revenue}
+                <div key={i} className="flex-1 flex flex-col items-center gap-1 sm:gap-2">
+                  <span className="text-[10px] sm:text-xs text-gray-600 font-medium">
+                    ${month.revenue > 1000 ? `${(month.revenue / 1000).toFixed(0)}k` : month.revenue}
                   </span>
                   <div
-                    className="w-full bg-blue-500 rounded-t-lg transition-all duration-300"
+                    className="w-full bg-blue-500 rounded-t transition-all duration-300"
                     style={{ height: `${Math.max(height, 5)}%` }}
                   />
-                  <span className="text-xs text-gray-500 capitalize">{month.month}</span>
+                  <span className="text-[10px] sm:text-xs text-gray-500 capitalize">{month.month}</span>
                 </div>
               );
             })}

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Calendar, dateFnsLocalizer, Views, View } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { CalendarEvent, Property } from '@/lib/types';
+import { Home } from 'lucide-react';
 
 const locales = { es };
 
@@ -26,10 +27,10 @@ interface BookingCalendarProps {
 }
 
 // Custom event component for better visibility
-function CustomEvent({ event }: { event: CalendarEvent }) {
+function CustomEvent({ event, selectedPropertyId }: { event: CalendarEvent; selectedPropertyId: string | null }) {
   return (
-    <div className="truncate text-xs sm:text-sm font-medium">
-      <span className="hidden sm:inline">{event.property?.name}: </span>
+    <div className="truncate text-xs font-medium px-1">
+      {!selectedPropertyId && <span className="hidden sm:inline">{event.property?.name}: </span>}
       {event.title}
     </div>
   );
@@ -43,6 +44,15 @@ export default function BookingCalendar({
 }: BookingCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<View>(Views.MONTH);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+
+  // Filter events by selected property
+  const filteredEvents = useMemo(() => {
+    if (!selectedPropertyId) return events;
+    return events.filter((e) => e.property?.id === selectedPropertyId);
+  }, [events, selectedPropertyId]);
+
+  const selectedProperty = properties.find((p) => p.id === selectedPropertyId);
 
   const handleNavigate = useCallback((newDate: Date) => {
     setCurrentDate(newDate);
@@ -57,11 +67,11 @@ export default function BookingCalendar({
     return {
       style: {
         backgroundColor: property?.color ?? '#6B7280',
-        borderRadius: '6px',
+        borderRadius: '4px',
         border: 'none',
         color: 'white',
-        fontSize: '12px',
-        padding: '4px 8px',
+        fontSize: '11px',
+        padding: '2px 4px',
         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
       },
     };
@@ -72,35 +82,81 @@ export default function BookingCalendar({
       onSelectSlot({
         start: slotInfo.start,
         end: slotInfo.end,
-        resourceId: slotInfo.resourceId?.toString(),
+        resourceId: selectedPropertyId || slotInfo.resourceId?.toString(),
       });
     },
-    [onSelectSlot]
+    [onSelectSlot, selectedPropertyId]
   );
 
-  // Legend component
-  const PropertyLegend = () => (
-    <div className="flex flex-wrap gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
-      <span className="text-sm text-gray-600 font-medium">Propiedades:</span>
-      {properties.map((p) => (
-        <div key={p.id} className="flex items-center gap-1.5">
-          <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: p.color }}
-          />
-          <span className="text-sm text-gray-700">{p.name}</span>
-        </div>
-      ))}
-    </div>
+  // Custom Event wrapper to pass selectedPropertyId
+  const EventComponent = useCallback(
+    ({ event }: { event: CalendarEvent }) => (
+      <CustomEvent event={event} selectedPropertyId={selectedPropertyId} />
+    ),
+    [selectedPropertyId]
   );
 
   return (
     <div>
-      <PropertyLegend />
-      <div className="h-[calc(100vh-320px)] sm:h-[calc(100vh-240px)] min-h-[400px] sm:min-h-[500px] booking-calendar">
+      {/* Property Filter - Mobile Friendly */}
+      <div className="mb-4">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedPropertyId(null)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+              selectedPropertyId === null
+                ? 'bg-gray-900 text-white shadow-md'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <Home size={16} />
+            <span>Todas</span>
+          </button>
+          {properties.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPropertyId(p.id)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                selectedPropertyId === p.id
+                  ? 'text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              style={selectedPropertyId === p.id ? { backgroundColor: p.color } : {}}
+            >
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: p.color }}
+              />
+              <span className="hidden sm:inline">{p.name}</span>
+              <span className="sm:hidden">{p.name.split(' ')[0]}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Selected property indicator */}
+      {selectedProperty && (
+        <div
+          className="mb-3 p-3 rounded-lg flex items-center gap-2"
+          style={{ backgroundColor: selectedProperty.color + '15' }}
+        >
+          <div
+            className="w-4 h-4 rounded-full"
+            style={{ backgroundColor: selectedProperty.color }}
+          />
+          <span className="font-medium" style={{ color: selectedProperty.color }}>
+            {selectedProperty.name}
+          </span>
+          <span className="text-sm text-gray-500">
+            - {filteredEvents.length} reserva{filteredEvents.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+      )}
+
+      <div className="h-[calc(100vh-380px)] sm:h-[calc(100vh-300px)] min-h-[350px] sm:min-h-[450px] booking-calendar">
         <Calendar
           localizer={localizer}
-          events={events}
+          events={filteredEvents}
           startAccessor="start"
           endAccessor="end"
           allDayAccessor={() => true}
@@ -114,31 +170,48 @@ export default function BookingCalendar({
           onSelectSlot={handleSelectSlot}
           eventPropGetter={eventStyleGetter}
           components={{
-            event: CustomEvent,
+            event: EventComponent,
           }}
           messages={{
             today: 'Hoy',
-            previous: 'Anterior',
-            next: 'Siguiente',
+            previous: '<',
+            next: '>',
             month: 'Mes',
-            week: 'Semana',
+            week: 'Sem',
             day: 'Día',
             date: 'Fecha',
             time: 'Hora',
             event: 'Reserva',
-            noEventsInRange: 'No hay reservas en este período',
+            noEventsInRange: 'No hay reservas',
             allDay: 'Reservas',
           }}
           formats={{
-            monthHeaderFormat: (date: Date) => format(date, 'MMMM yyyy', { locale: es }),
-            weekdayFormat: (date: Date) => format(date, 'EEE', { locale: es }),
-            dayHeaderFormat: (date: Date) => format(date, 'EEEE dd/MM', { locale: es }),
+            monthHeaderFormat: (date: Date) => format(date, 'MMM yyyy', { locale: es }),
+            weekdayFormat: (date: Date) => format(date, 'EEEEE', { locale: es }),
+            dayHeaderFormat: (date: Date) => format(date, 'EEE dd/MM', { locale: es }),
             dayRangeHeaderFormat: ({ start, end }: { start: Date; end: Date }) =>
-              `${format(start, 'dd MMM', { locale: es })} - ${format(end, 'dd MMM yyyy', { locale: es })}`,
+              `${format(start, 'dd MMM', { locale: es })} - ${format(end, 'dd MMM', { locale: es })}`,
           }}
         />
       </div>
       <style jsx global>{`
+        /* Mobile-first calendar styles */
+        .booking-calendar .rbc-toolbar {
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 12px;
+          font-size: 14px;
+        }
+
+        .booking-calendar .rbc-toolbar button {
+          padding: 6px 10px;
+          font-size: 13px;
+        }
+
+        .booking-calendar .rbc-btn-group {
+          flex-wrap: nowrap;
+        }
+
         /* Hide time gutter in week/day views */
         .booking-calendar .rbc-time-gutter,
         .booking-calendar .rbc-time-slot,
@@ -153,23 +226,30 @@ export default function BookingCalendar({
 
         /* Expand all-day section */
         .booking-calendar .rbc-allday-cell {
-          min-height: 150px !important;
+          min-height: 120px !important;
           max-height: none !important;
         }
 
         /* Better event display */
         .booking-calendar .rbc-event {
-          min-height: 24px !important;
+          min-height: 20px !important;
+          padding: 1px 4px !important;
         }
 
-        /* Month view - better cell height */
+        /* Month view - better cell height for mobile */
         .booking-calendar .rbc-month-row {
-          min-height: 100px;
+          min-height: 70px;
+        }
+
+        @media (min-width: 640px) {
+          .booking-calendar .rbc-month-row {
+            min-height: 90px;
+          }
         }
 
         /* Better row display */
         .booking-calendar .rbc-row-segment {
-          padding: 2px 4px;
+          padding: 1px 2px;
         }
 
         /* Today highlight */
@@ -177,11 +257,36 @@ export default function BookingCalendar({
           background-color: #EFF6FF !important;
         }
 
-        /* Header styling */
+        /* Header styling - compact for mobile */
         .booking-calendar .rbc-header {
-          padding: 8px 4px;
+          padding: 6px 2px;
           font-weight: 600;
+          font-size: 11px;
           color: #374151;
+        }
+
+        @media (min-width: 640px) {
+          .booking-calendar .rbc-header {
+            padding: 8px 4px;
+            font-size: 13px;
+          }
+        }
+
+        /* Date cell number */
+        .booking-calendar .rbc-date-cell {
+          padding: 2px 4px;
+          font-size: 12px;
+        }
+
+        /* Off-range dates more subtle */
+        .booking-calendar .rbc-off-range-bg {
+          background-color: #f9fafb;
+        }
+
+        /* Show more link */
+        .booking-calendar .rbc-show-more {
+          font-size: 11px;
+          color: #3b82f6;
         }
       `}</style>
     </div>
