@@ -18,13 +18,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.className} bg-gray-50 min-h-screen flex flex-col`}>
+      <body className={`${inter.className} bg-gray-50 min-h-screen flex flex-col overflow-x-hidden`}>
         <Providers>
           <Navbar />
           <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 flex-1 w-full">{children}</main>
           <footer className="bg-white border-t border-gray-200 py-4 mt-auto">
             <p className="text-center text-sm text-gray-500">
-              Hecho con amor para mama. -F
+              Hecho con amor para mamá ❤️ -F
             </p>
           </footer>
         </Providers>

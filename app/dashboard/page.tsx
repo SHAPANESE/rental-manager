@@ -231,43 +231,45 @@ export default function DashboardPage() {
       {/* Per Property Stats */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-gray-900">Rendimiento por Propiedad</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Rendimiento por Propiedad</h2>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {stats.propertyStats.map((property) => (
-              <div key={property.id} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3 mb-3">
+              <div key={property.id} className="p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: property.color + '20' }}
                   >
-                    <Home size={20} style={{ color: property.color }} />
+                    <Home size={16} style={{ color: property.color }} />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{property.name}</h3>
-                    <p className="text-sm text-gray-500">{property.bookingsCount} reservas</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 text-sm truncate">{property.name}</h3>
+                    <p className="text-xs text-gray-500">{property.bookingsCount} reservas</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <p className="text-lg font-bold text-gray-900">${property.revenue.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">Ingresos</p>
+                    <p className="text-sm sm:text-base font-bold text-gray-900">
+                      ${property.revenue > 1000 ? `${(property.revenue / 1000).toFixed(1)}k` : property.revenue}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Ingresos</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-gray-900">{property.nights}</p>
-                    <p className="text-xs text-gray-500">Noches</p>
+                    <p className="text-sm sm:text-base font-bold text-gray-900">{property.nights}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Noches</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-gray-900">{property.occupancy.toFixed(0)}%</p>
-                    <p className="text-xs text-gray-500">Ocupacion</p>
+                    <p className="text-sm sm:text-base font-bold text-gray-900">{property.occupancy.toFixed(0)}%</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Ocupación</p>
                   </div>
                 </div>
                 {/* Occupancy bar */}
-                <div className="mt-3">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
                     <div
-                      className="h-2 rounded-full transition-all duration-300"
+                      className="h-1.5 rounded-full transition-all duration-300"
                       style={{
                         width: `${property.occupancy}%`,
                         backgroundColor: property.color
