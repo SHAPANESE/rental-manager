@@ -139,7 +139,7 @@ export default function HomePage() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-2 sm:p-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-2 sm:p-4 overflow-visible">
         <BookingCalendar
           events={events}
           properties={properties}

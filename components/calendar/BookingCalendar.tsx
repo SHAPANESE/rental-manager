@@ -158,7 +158,7 @@ export default function BookingCalendar({
         Toca una fecha para crear reserva
       </p>
 
-      <div className="h-[500px] sm:h-[600px] min-h-[500px] booking-calendar">
+      <div className="h-[550px] sm:h-[650px] booking-calendar overflow-visible">
         <Calendar
           localizer={localizer}
           events={filteredEvents}
@@ -201,6 +201,13 @@ export default function BookingCalendar({
         />
       </div>
       <style jsx global>{`
+        /* Ensure calendar is fully visible */
+        .booking-calendar,
+        .booking-calendar .rbc-calendar,
+        .booking-calendar .rbc-month-view {
+          overflow: visible !important;
+        }
+
         /* Mobile-first calendar styles */
         .booking-calendar .rbc-toolbar {
           flex-wrap: wrap;
